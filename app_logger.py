@@ -4,6 +4,8 @@ import sys
 
 from pythonjsonlogger.json import JsonFormatter
 
+_app_name = None
+
 
 class Colors(enum.Enum):
     RED = "\033[1;31m"
@@ -32,15 +34,20 @@ class RemoveColorFilter(logging.Filter):
         return True
 
 
-def log(msg: object, color: Colors = Colors.DEFAULT, level: int = logging.INFO):
-    logger = logging.getLogger("CGAN Monet")
+def log(msg: object, color: Colors = Colors.DEFAULT, level: int = logging.INFO, logger_name: str = None) -> None:
+    if logger_name is None:
+        global _app_name
+        logger_name = _app_name
+    logger = logging.getLogger(logger_name)
     extra = {"color": color.value if color != Colors.DEFAULT else ""}
     logger.log(level, msg, extra=extra, stacklevel=2)
 
 
-def setup(log_path: str = "./app.log"):
-    logger = logging.getLogger("CGAN Monet")
-    logger.setLevel(logging.DEBUG)
+def setup(app_name, log_path: str = "./app.log", log_level: int = logging.INFO):
+    global _app_name
+    _app_name = app_name
+    logger = logging.getLogger(_app_name)
+    logger.setLevel(log_level)
     logger.propagate = False
 
     logger.handlers.clear()
@@ -60,4 +67,4 @@ def setup(log_path: str = "./app.log"):
     file_handler.addFilter(RemoveColorFilter())
     logger.addHandler(file_handler)
 
-    logger.info("Logger initialized", stacklevel=2)
+    log("Logger initialized", color=Colors.GREEN)

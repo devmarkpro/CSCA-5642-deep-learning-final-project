@@ -1,4 +1,5 @@
 import logging
+import os
 from dataclasses import dataclass, field, fields
 from enum import Enum, auto
 from typing import Any, Dict, Optional, TypedDict
@@ -32,28 +33,42 @@ def _level_to_int(level: int | str) -> int:
 @dataclass(slots=True, kw_only=True)
 class AppConfig:
     # Core
-    seed: int = field(default=42, metadata={"help": "Random seed for all components", "command": Command.ALL})
+    seed: int = field(default=42, metadata={
+                      "help": "Random seed for all components", "command": Command.ALL})
     log_level: int | str = field(
         default=logging.INFO,
-        metadata={"help": "Log level (e.g. 10/DEBUG, 20/INFO, ...)", "command": Command.ALL},
+        metadata={
+            "help": "Log level (10/DEBUG, 20/INFO, 30/WARNING, 40/ERROR, 50/CRITICAL)", "command": Command.ALL},
+    )
+    log_path: str = field(
+        default="./app.log",
+        metadata={"help": "Where to store logs", "command": Command.ALL},
     )
     artifacts_folder: str = field(
         default="./artifacts",
-        metadata={"help": "Where to store outputs, checkpoints, plots, etc.", "command": Command.ALL},
+        metadata={"help": "Where to store outputs, checkpoints, plots, etc.",
+                  "command": Command.ALL},
     )
     use_wandb: bool = field(
         default=False,
-        metadata={"help": "Enable Weights & Biases logging", "command": Command.ALL},
+        metadata={"help": "Enable Weights & Biases logging",
+                  "command": Command.ALL},
+    )
+    reset_log_file: bool = field(
+        default=False,
+        metadata={"help": "Delete current log file from --log_path before starting",
+                  "command": Command.ALL},
     )
 
     # Experiment
     epochs: int = field(
         default=100,
-        metadata={"help": "Number of training epochs", "command": Command.EXPERIMENT},
+        metadata={"help": "Number of training epochs",
+                  "command": Command.EXPERIMENT},
     )
 
     # EDA
-    dpi: int = field(  # fixed: was `field(float=10, ...)` which is invalid + wrong type
+    dpi: int = field(
         default=100,
         metadata={"help": "DPI for EDA output plots", "command": Command.EDA},
     )
@@ -69,6 +84,8 @@ class AppConfig:
             raise ValueError("seed must be >= 0")
         if not isinstance(self.artifacts_folder, str) or not self.artifacts_folder.strip():
             raise ValueError("artifacts_folder must be a non-empty string")
+        else:
+            os.makedirs(self.artifacts_folder, exist_ok=True)
         if self.epochs <= 0:
             raise ValueError("epochs must be a positive integer")
         if self.dpi <= 0:
