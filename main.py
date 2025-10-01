@@ -2,30 +2,28 @@ import os
 
 from dotenv import load_dotenv
 
-import app_logger as l
-from config import AppConfig
 from config.arg_parser import parse_arguments, create_config_from_args
+from config.logger_config import setup as setup_logger
 from eda import EDA
 from experiment import Experiment
+from logger import app_logger as l
 
 load_dotenv(dotenv_path="./.env", verbose=True)
-
-APP_NAME = os.environ.get("APP_NAME", "DeepLearningProject")
 
 
 def main():
     # Parse command line arguments
     args = parse_arguments()
 
-    # Remove log file, if requested and exists
-    if args.reset_log_file and os.path.exists(args.log_path):
-        os.remove(args.log_path)
-
-    # Setup logging with the parsed arguments
-    l.setup(APP_NAME, log_path=args.log_path, log_level=args.log_level)
-
     # Create AppConfig instance from parsed arguments
     config = create_config_from_args(args)
+
+    # Remove log file, if requested and exists
+    if config.reset_log_file and os.path.exists(config.log_path):
+        os.remove(config.log_path)
+
+    # Setup logging with the config values
+    setup_logger(config.app_name, log_path=config.log_path, log_level=config.log_level)
 
     l.log(
         f"Starting {args.command} command with config: {config}", color=l.Colors.BLUE)

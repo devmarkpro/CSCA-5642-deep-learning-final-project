@@ -33,6 +33,8 @@ def _level_to_int(level: int | str) -> int:
 @dataclass(slots=True, kw_only=True)
 class AppConfig:
     # Core
+    app_name: str = field(default="CSCA-5642", metadata={
+                         "help": "Application name for logging and identification", "command": Command.ALL})
     seed: int = field(default=42, metadata={
                       "help": "Random seed for all components", "command": Command.ALL})
     log_level: int | str = field(
@@ -80,6 +82,8 @@ class AppConfig:
         self.log_level = _level_to_int(self.log_level)
 
         # Basic validations with clear error messages
+        if not isinstance(self.app_name, str) or not self.app_name.strip():
+            raise ValueError("app_name must be a non-empty string")
         if self.seed < 0:
             raise ValueError("seed must be >= 0")
         if not isinstance(self.artifacts_folder, str) or not self.artifacts_folder.strip():

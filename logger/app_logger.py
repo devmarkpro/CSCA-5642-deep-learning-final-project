@@ -1,10 +1,5 @@
 import enum
 import logging
-import sys
-
-from pythonjsonlogger.json import JsonFormatter
-
-_app_name = None
 
 
 class Colors(enum.Enum):
@@ -35,36 +30,20 @@ class RemoveColorFilter(logging.Filter):
 
 
 def log(msg: object, color: Colors = Colors.DEFAULT, level: int = logging.INFO, logger_name: str = None) -> None:
+    """
+    Log a message with optional color formatting.
+
+    Args:
+        msg: Message to log
+        color: Color for console output
+        level: Logging level
+        logger_name: Name of the logger to use (if None, uses the configured app logger)
+    """
     if logger_name is None:
-        global _app_name
-        logger_name = _app_name
+        # Import here to avoid circular imports
+        from config.logger_config import get_app_name
+        logger_name = get_app_name()
+
     logger = logging.getLogger(logger_name)
     extra = {"color": color.value if color != Colors.DEFAULT else ""}
     logger.log(level, msg, extra=extra, stacklevel=2)
-
-
-def setup(app_name, log_path: str = "./app.log", log_level: int = logging.INFO):
-    global _app_name
-    _app_name = app_name
-    logger = logging.getLogger(_app_name)
-    logger.setLevel(log_level)
-    logger.propagate = False
-
-    logger.handlers.clear()
-
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(ColorFormatter(
-        "%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s"
-    ))
-    logger.addHandler(console_handler)
-
-    file_handler = logging.FileHandler(log_path)
-    json_formatter = JsonFormatter(
-        fmt="%(asctime)s %(levelname)s %(name)s %(filename)s %(lineno)d %(message)s",
-        json_ensure_ascii=False,
-    )
-    file_handler.setFormatter(json_formatter)
-    file_handler.addFilter(RemoveColorFilter())
-    logger.addHandler(file_handler)
-
-    log("Logger initialized", color=Colors.GREEN)

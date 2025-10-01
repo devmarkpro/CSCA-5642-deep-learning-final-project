@@ -4,9 +4,9 @@ EDA (Exploratory Data Analysis) implementation.
 This module contains the EDA class that handles all exploratory data analysis tasks.
 """
 
-import app_logger as l
 from app import App
 from config import AppConfig
+from logger import app_logger as l
 
 
 class EDA(App):

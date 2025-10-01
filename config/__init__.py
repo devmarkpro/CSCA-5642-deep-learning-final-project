@@ -9,6 +9,7 @@ This package contains:
 
 from .config import AppConfig, Command, ArgInfo
 from .arg_parser import parse_arguments, create_config_from_args, create_parser, add_subcommand
+from . import logger_config
 
 __all__ = [
     "AppConfig",
@@ -17,5 +18,6 @@ __all__ = [
     "parse_arguments",
     "create_config_from_args",
     "create_parser",
-    "add_subcommand"
+    "add_subcommand",
+    "logger_config"
 ]
