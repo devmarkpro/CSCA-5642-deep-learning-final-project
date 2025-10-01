@@ -6,8 +6,10 @@ This module contains logger setup and configuration utilities.
 
 import logging
 import sys
+
 from pythonjsonlogger.json import JsonFormatter
-from logger.app_logger import Colors, ColorFormatter, RemoveColorFilter, log
+
+from logger.app_logger import ColorFormatter, RemoveColorFilter, get_logger
 
 __app_name = None
 
@@ -46,7 +48,9 @@ def setup(app_name: str, log_path: str = "./app.log", log_level: int = logging.I
     file_handler.addFilter(RemoveColorFilter())
     logger.addHandler(file_handler)
 
-    log("Logger initialized", color=Colors.GREEN)
+    # Create a logger instance for this app and log initialization
+    app_log = get_logger(__app_name)
+    app_log.debug("Logger initialized")
 
 
 def get_app_name() -> str:

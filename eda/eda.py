@@ -6,7 +6,7 @@ This module contains the EDA class that handles all exploratory data analysis ta
 
 from app import App
 from config import AppConfig
-from logger import app_logger as l
+from logger import Colors
 
 
 class EDA(App):
@@ -25,8 +25,8 @@ class EDA(App):
             config: AppConfig instance containing all configuration parameters
         """
         super().__init__(config)
-        l.log(f"EDA initialized with config: seed={config.seed}, dpi={config.dpi}",
-              color=l.Colors.BLUE)
+        self.logger.info(f"EDA initialized with config: seed={config.seed}, dpi={config.dpi}",
+                         color=Colors.BLUE)
 
     def run(self):
         """
@@ -35,6 +35,6 @@ class EDA(App):
         This method implements the main EDA logic including data loading,
         analysis, and visualization generation.
         """
-        l.log(
+        self.logger.info(
             f"Starting EDA workflow with config: {self.config}",
-            color=l.Colors.GREEN)
+            color=Colors.GREEN)

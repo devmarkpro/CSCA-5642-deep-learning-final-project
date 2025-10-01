@@ -8,5 +8,6 @@ This package contains logging utilities including:
 
 from . import app_logger
 from .wandb_logger import WandBLogger
+from .app_logger import Colors
 
-__all__ = ["app_logger", "WandBLogger"]
+__all__ = ["app_logger", "WandBLogger", "Colors"]

@@ -6,7 +6,7 @@ from config.arg_parser import parse_arguments, create_config_from_args
 from config.logger_config import setup as setup_logger
 from eda import EDA
 from experiment import Experiment
-from logger import app_logger as l
+from logger.app_logger import get_logger, Colors
 
 load_dotenv(dotenv_path="./.env", verbose=True)
 
@@ -25,8 +25,10 @@ def main():
     # Setup logging with the config values
     setup_logger(config.app_name, log_path=config.log_path, log_level=config.log_level)
 
-    l.log(
-        f"Starting {args.command} command with config: {config}", color=l.Colors.BLUE)
+    # Get logger for this app
+    logger = get_logger(config.app_name)
+
+    logger.log(f"Starting {args.command} command with config: {config}", color=Colors.BLUE)
 
     # Instantiate and run the appropriate command class
     if args.command == "experiment":
@@ -39,8 +41,7 @@ def main():
     try:
         app.run()
     except Exception as e:
-        l.log(
-            f"Error running {args.command} command: {e} , config: {config}", color=l.Colors.RED)
+        logger.error(f"Error running {args.command} command: {e} , config: {config}")
         return 1
     return 0
 
