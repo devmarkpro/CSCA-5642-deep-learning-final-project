@@ -2,6 +2,7 @@ import logging
 import os
 from dataclasses import dataclass, field, fields
 from enum import Enum, auto
+from pathlib import Path
 from typing import Any, Dict, Optional, TypedDict
 
 
@@ -19,7 +20,14 @@ class Command(Enum):
 def _level_to_int(level: int | str) -> int:
     """Accept 20 or 'INFO'/'info' etc., return a logging level int or raise ValueError."""
     if isinstance(level, int):
-        if level in (logging.CRITICAL, logging.ERROR, logging.WARNING, logging.INFO, logging.DEBUG, logging.NOTSET):
+        if level in (
+            logging.CRITICAL,
+            logging.ERROR,
+            logging.WARNING,
+            logging.INFO,
+            logging.DEBUG,
+            logging.NOTSET,
+        ):
             return level
         raise ValueError(f"Invalid numeric log level: {level}")
     # string
@@ -33,14 +41,23 @@ def _level_to_int(level: int | str) -> int:
 @dataclass(slots=True, kw_only=True)
 class AppConfig:
     # Core
-    app_name: str = field(default="CSCA-5642", metadata={
-                         "help": "Application name for logging and identification", "command": Command.ALL})
-    seed: int = field(default=42, metadata={
-                      "help": "Random seed for all components", "command": Command.ALL})
+    app_name: str = field(
+        default="CSCA-5642",
+        metadata={
+            "help": "Application name for logging and identification",
+            "command": Command.ALL,
+        },
+    )
+    seed: int = field(
+        default=42,
+        metadata={"help": "Random seed for all components", "command": Command.ALL},
+    )
     log_level: int | str = field(
         default=logging.INFO,
         metadata={
-            "help": "Log level (10/DEBUG, 20/INFO, 30/WARNING, 40/ERROR, 50/CRITICAL)", "command": Command.ALL},
+            "help": "Log level (10/DEBUG, 20/INFO, 30/WARNING, 40/ERROR, 50/CRITICAL)",
+            "command": Command.ALL,
+        },
     )
     log_path: str = field(
         default="./app.log",
@@ -48,25 +65,57 @@ class AppConfig:
     )
     artifacts_folder: str = field(
         default="./artifacts",
-        metadata={"help": "Where to store outputs, checkpoints, plots, etc.",
-                  "command": Command.ALL},
+        metadata={
+            "help": "Where to store outputs, checkpoints, plots, etc.",
+            "command": Command.ALL,
+        },
     )
     use_wandb: bool = field(
         default=False,
-        metadata={"help": "Enable Weights & Biases logging",
-                  "command": Command.ALL},
+        metadata={"help": "Enable Weights & Biases logging", "command": Command.ALL},
     )
     reset_log_file: bool = field(
         default=False,
-        metadata={"help": "Delete current log file from --log_path before starting",
-                  "command": Command.ALL},
+        metadata={
+            "help": "Delete current log file from --log_path before starting",
+            "command": Command.ALL,
+        },
+    )
+    dataset_image_dir: str = field(
+        default="./data/images",
+        metadata={"help": "Where to store dataset images", "command": Command.ALL},
+    )
+    dataset_caption_file_path: str = field(
+        default="./data/captions.csv",
+        metadata={"help": "Where to store dataset captions", "command": Command.ALL},
+    )
+    batch_size: int = field(
+        default=32,
+        metadata={"help": "Batch size for training", "command": Command.ALL},
+    )
+    num_workers: int = field(
+        default=4,
+        metadata={"help": "Number of workers for data loading", "command": Command.ALL},
     )
 
     # Experiment
     epochs: int = field(
         default=100,
-        metadata={"help": "Number of training epochs",
-                  "command": Command.EXPERIMENT},
+        metadata={"help": "Number of training epochs", "command": Command.EXPERIMENT},
+    )
+    train_size: float = field(
+        default=0.8,
+        metadata={
+            "help": "Percentage of dataset to use for training",
+            "command": Command.EXPERIMENT,
+        },
+    )
+    test_size: float = field(
+        default=0.1,
+        metadata={
+            "help": "Percentage of dataset to use for testing",
+            "command": Command.EXPERIMENT,
+        },
     )
 
     # EDA
@@ -86,7 +135,10 @@ class AppConfig:
             raise ValueError("app_name must be a non-empty string")
         if self.seed < 0:
             raise ValueError("seed must be >= 0")
-        if not isinstance(self.artifacts_folder, str) or not self.artifacts_folder.strip():
+        if (
+            not isinstance(self.artifacts_folder, str)
+            or not self.artifacts_folder.strip()
+        ):
             raise ValueError("artifacts_folder must be a non-empty string")
         else:
             os.makedirs(self.artifacts_folder, exist_ok=True)
@@ -95,11 +147,24 @@ class AppConfig:
         if self.dpi <= 0:
             raise ValueError("dpi must be a positive integer")
 
+        if self.reset_log_file and os.path.exists(self.log_path):
+            os.remove(self.log_path)
+        if not os.path.exists(self.dataset_caption_file_path):
+            raise ValueError("dataset_caption_file_path must exist")
+        if Path(self.dataset_caption_file_path).suffix not in (".csv", ".tsv"):
+            raise ValueError("dataset_caption_file_path must be a CSV or TSV file")
+        if not os.path.exists(self.dataset_image_dir):
+            raise ValueError("dataset_image_dir must exist")
+
     def _iter_fields(self, command: Optional[Command]) -> list:
         """Yield dataclass fields filtered by command (or all if None)."""
         if command is None:
             return list(fields(self))
-        return [f for f in fields(self) if f.metadata.get("command", Command.ALL) in (command, Command.ALL)]
+        return [
+            f
+            for f in fields(self)
+            if f.metadata.get("command", Command.ALL) in (command, Command.ALL)
+        ]
 
     def to_dict(self, command: Optional[Command] = None) -> Dict[str, ArgInfo]:
         """

@@ -1,5 +1,7 @@
-import os
+import random
 
+import numpy as np
+import torch
 from dotenv import load_dotenv
 
 from config.arg_parser import parse_arguments, create_config_from_args
@@ -15,12 +17,12 @@ def main():
     # Parse command line arguments
     args = parse_arguments()
 
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+
     # Create AppConfig instance from parsed arguments
     config = create_config_from_args(args)
-
-    # Remove log file, if requested and exists
-    if config.reset_log_file and os.path.exists(config.log_path):
-        os.remove(config.log_path)
 
     # Setup logging with the config values
     setup_logger(config.app_name, log_path=config.log_path, log_level=config.log_level)
@@ -28,7 +30,9 @@ def main():
     # Get logger for this app
     logger = get_logger(config.app_name)
 
-    logger.log(f"Starting {args.command} command with config: {config}", color=Colors.BLUE)
+    logger.log(
+        f"Starting {args.command} command with config: {config}", color=Colors.BLUE
+    )
 
     # Instantiate and run the appropriate command class
     if args.command == "experiment":
@@ -40,11 +44,11 @@ def main():
 
     try:
         app.run()
-    except Exception as e:
+    except ValueError as e:
         logger.error(f"Error running {args.command} command: {e} , config: {config}")
         return 1
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
