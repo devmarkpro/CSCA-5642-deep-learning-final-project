@@ -9,6 +9,7 @@ from config.logger_config import setup as setup_logger
 from eda import EDA
 from experiment import Experiment
 from logger.app_logger import get_logger, Colors
+from config.app_device import get_device_info
 
 load_dotenv(dotenv_path="./.env", verbose=True)
 
@@ -29,9 +30,9 @@ def main():
 
     # Get logger for this app
     logger = get_logger(config.app_name)
-
-    logger.log(
-        f"Starting {args.command} command with config: {config}", color=Colors.BLUE
+    logger.info(f"Using device: {get_device_info()}")
+    logger.info(
+        f"Starting '{args.command}' command with config: {config}", color=Colors.MAGENTA
     )
 
     # Instantiate and run the appropriate command class

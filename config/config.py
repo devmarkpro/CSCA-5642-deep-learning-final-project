@@ -86,7 +86,7 @@ class AppConfig:
         metadata={"help": "Where to store dataset images", "command": Command.ALL},
     )
     dataset_caption_file_path: str = field(
-        default="./data/captions.csv",
+        default="./data/captions.txt",
         metadata={"help": "Where to store dataset captions", "command": Command.ALL},
     )
     batch_size: int = field(
@@ -151,8 +151,6 @@ class AppConfig:
             os.remove(self.log_path)
         if not os.path.exists(self.dataset_caption_file_path):
             raise ValueError("dataset_caption_file_path must exist")
-        if Path(self.dataset_caption_file_path).suffix not in (".csv", ".tsv"):
-            raise ValueError("dataset_caption_file_path must be a CSV or TSV file")
         if not os.path.exists(self.dataset_image_dir):
             raise ValueError("dataset_image_dir must exist")
 

@@ -9,3 +9,6 @@ class WandBLogger:
 
     def log_metric(self, metric_name: str, metric_value: float, step: int):
         pass
+    # log histogram
+    def log_histogram(self, histogram_name: str, histogram_value: float, step: int):
+
