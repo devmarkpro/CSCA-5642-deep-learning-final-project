@@ -124,6 +124,14 @@ class AppConfig:
         default=200,
         metadata={"help": "DPI for output plots", "command": Command.EDA},
     )
+    min_image_size: int = field(
+        default=224,
+        metadata={"help": "Minimum image size", "command": Command.EDA},
+    )
+    max_image_size: int = field(
+        default=224,
+        metadata={"help": "Maximum image size", "command": Command.EDA},
+    )
 
     # --- lifecycle hooks & helpers ---
 
@@ -147,7 +155,12 @@ class AppConfig:
             raise ValueError("epochs must be a positive integer")
         if self.dpi <= 0:
             raise ValueError("dpi must be a positive integer")
-
+        if self.min_image_size <= 0:
+            raise ValueError("min_image_size must be a positive integer")
+        if self.max_image_size <= 0:
+            raise ValueError("max_image_size must be a positive integer")
+        if self.min_image_size > self.max_image_size:
+            raise ValueError("min_image_size must be less than max_image_size")
         if self.reset_log_file and os.path.exists(self.log_path):
             os.remove(self.log_path)
         if not os.path.exists(self.dataset_caption_file_path):

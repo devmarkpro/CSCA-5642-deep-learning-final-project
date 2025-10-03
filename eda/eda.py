@@ -300,13 +300,15 @@ class EDA(App):
         self.logger.info("Analyzing images...")
 
         # Sample images for analysis (to avoid loading all images)
-        sample_size = min(1000, len(self.train_dataset))
+        # sample_size = min(1000, len(self.train_dataset))
+        sample_size = len(self.train_dataset)
         sample_indices = np.random.choice(
             len(self.train_dataset), sample_size, replace=False)
 
         image_stats = {
             'widths': [],
             'heights': [],
+            'small_images': [],
             'aspect_ratios': [],
             'file_sizes': []
         }
@@ -324,6 +326,11 @@ class EDA(App):
                         image_stats['widths'].append(width)
                         image_stats['heights'].append(height)
                         image_stats['aspect_ratios'].append(width / height)
+
+                        if width < self.config.min_image_size or height < self.config.min_image_size:
+                            image_stats['small_images'].append(True)
+                        else:
+                            image_stats['small_images'].append(False)
 
                     # Get file size
                     file_size = os.path.getsize(img_path) / 1024  # KB
@@ -350,7 +357,8 @@ class EDA(App):
             'min_height': min(image_stats['heights']),
             'max_height': max(image_stats['heights']),
             'min_aspect_ratio': min(image_stats['aspect_ratios']),
-            'max_aspect_ratio': max(image_stats['aspect_ratios'])
+            'max_aspect_ratio': max(image_stats['aspect_ratios']),
+            'small_images': sum(image_stats['small_images'])
         }
 
         # Log statistics
