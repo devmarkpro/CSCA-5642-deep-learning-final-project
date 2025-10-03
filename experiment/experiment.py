@@ -7,6 +7,7 @@ experiment and training tasks.
 
 from app import App
 from config import AppConfig
+from logger import WandBLogger
 
 
 class Experiment(App):
@@ -26,6 +27,12 @@ class Experiment(App):
         """
         super().__init__(config)
         self.logger.debug(f"Experiment initialized with config: seed={config.seed}, epochs={config.epochs}")
+
+    def get_wandb_config(self) -> tuple[str, list[str]]:
+        """Return experiment-specific WandB configuration."""
+        project_name = f"{self.config.app_name}-experiments"
+        tags = ["experiment", "training", "flickr30k", "deep-learning", "computer-vision", "captioning"]
+        return project_name, tags
 
     def run(self):
         """

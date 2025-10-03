@@ -2,6 +2,6 @@
 
 
 Dataset: 
-- https://www.kaggle.com/datasets/adityajn105/flickr30k
+- https://github.com/awsaf49/flickr-dataset
 - https://bryanplummer.com/Flickr30kEntities/
 - https://docs.pytorch.org/vision/0.22/generated/torchvision.datasets.Flickr30k.html

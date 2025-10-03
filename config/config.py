@@ -50,7 +50,8 @@ class AppConfig:
     )
     seed: int = field(
         default=42,
-        metadata={"help": "Random seed for all components", "command": Command.ALL},
+        metadata={"help": "Random seed for all components",
+                  "command": Command.ALL},
     )
     log_level: int | str = field(
         default=logging.INFO,
@@ -70,10 +71,6 @@ class AppConfig:
             "command": Command.ALL,
         },
     )
-    use_wandb: bool = field(
-        default=False,
-        metadata={"help": "Enable Weights & Biases logging", "command": Command.ALL},
-    )
     reset_log_file: bool = field(
         default=False,
         metadata={
@@ -83,11 +80,13 @@ class AppConfig:
     )
     dataset_image_dir: str = field(
         default="./data/images",
-        metadata={"help": "Where to store dataset images", "command": Command.ALL},
+        metadata={"help": "Where to store dataset images",
+                  "command": Command.ALL},
     )
     dataset_caption_file_path: str = field(
         default="./data/captions.txt",
-        metadata={"help": "Where to store dataset captions", "command": Command.ALL},
+        metadata={"help": "Where to store dataset captions",
+                  "command": Command.ALL},
     )
     batch_size: int = field(
         default=32,
@@ -95,13 +94,15 @@ class AppConfig:
     )
     num_workers: int = field(
         default=4,
-        metadata={"help": "Number of workers for data loading", "command": Command.ALL},
+        metadata={"help": "Number of workers for data loading",
+                  "command": Command.ALL},
     )
 
     # Experiment
     epochs: int = field(
         default=100,
-        metadata={"help": "Number of training epochs", "command": Command.EXPERIMENT},
+        metadata={"help": "Number of training epochs",
+                  "command": Command.EXPERIMENT},
     )
     train_size: float = field(
         default=0.8,
@@ -120,8 +121,8 @@ class AppConfig:
 
     # EDA
     dpi: int = field(
-        default=100,
-        metadata={"help": "DPI for EDA output plots", "command": Command.EDA},
+        default=200,
+        metadata={"help": "DPI for output plots", "command": Command.EDA},
     )
 
     # --- lifecycle hooks & helpers ---
@@ -153,6 +154,10 @@ class AppConfig:
             raise ValueError("dataset_caption_file_path must exist")
         if not os.path.exists(self.dataset_image_dir):
             raise ValueError("dataset_image_dir must exist")
+        if self.train_size + self.test_size >= 1.0:
+            raise ValueError("train_size + test_size must be < 1.0")
+        if self.train_size < 0 or self.test_size < 0:
+            raise ValueError("train_size and test_size must be >= 0")
 
     def _iter_fields(self, command: Optional[Command]) -> list:
         """Yield dataclass fields filtered by command (or all if None)."""

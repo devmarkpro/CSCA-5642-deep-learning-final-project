@@ -13,7 +13,9 @@ dependencies = [
     "notebook>=7.4.7",
     "numpy>=2.3.3",
     "pillow>=11.3.0",
+    "python-dotenv>=1.1.1",
     "python-json-logger>=3.3.0",
+    "scikit-learn>=1.7.2",
     "seaborn>=0.13.2",
     "torch>=2.8.0",
     "torchmetrics>=1.8.2",
@@ -21,4 +23,11 @@ dependencies = [
     "tqdm>=4.67.1",
     "transformers>=4.56.2",
     "wandb>=0.22.1",
+    "wordcloud>=1.9.4",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
 ]
